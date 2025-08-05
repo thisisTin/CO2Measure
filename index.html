@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environmental Dashboard</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- CO2 Card -->
+        <div class="card">
+            <div class="card-header">CO2 Levels</div>
+            <div class="card-body">
+                <canvas id="co2Gauge"></canvas>
+                <div class="value-display" id="co2-value">-- ppm</div>
+                <div class="value-label">Current Carbon Dioxide Concentration</div>
+                <div class="status" id="co2-status">--</div>
+            </div>
+        </div>
+
+        <!-- AQI Card -->
+        <div class="card">
+            <div class="card-header">Air Quality Index</div>
+            <div class="card-body">
+                <canvas id="aqiGauge"></canvas>
+                <div class="value-display" id="aqi-value">--</div>
+                <div class="value-label">Current Air Quality</div>
+                <div class="status" id="aqi-status">--</div>
+            </div>
+        </div>
+
+        <!-- Map -->
+        <div class="card map-container">
+            <div class="card-header">Sensor Locations</div>
+            <div class="card-body">
+                <div id="map"></div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="card">
+            <div class="card-header">CO2 History</div>
+            <div class="card-body">
+                <canvas id="co2Chart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">AQI History</div>
+            <div class="card-body">
+                <canvas id="aqiChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Libraries -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gauge-chart@1.0.7/dist/gauge.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="rnddata.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
