@@ -1,9 +1,13 @@
 The **rnddata** is the simulation data, when the product is finish, we won't use this
+
 **1. How to deploy**
+
   **1.1 Install**
+  
   - Node and NPM
   - Live server Extension
   **1.2 Deploy**
+    
   - Pull the repository from https://github.com/thisisTin/CO2Measure.git
 
     1st way: Command using gitbash or terminal
