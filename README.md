@@ -9,7 +9,7 @@ The **rnddata** is the simulation data, when the product is finish, we won't use
 
   **1.2 Deploy**
     
-  - Pull the repository from https://github.com/thisisTin/CO2Measure.git
+  - Clone the repository from https://github.com/thisisTin/CO2Measure.git
 
     1st way: Command using gitbash or terminal
       + `cd: (your destination)`
