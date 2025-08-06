@@ -1,22 +1,12 @@
+// rnddata.js — simulate data from ESP32 or API server 
 async function fetchSensorData() {
-    let lat = 10.794, lon = 106.682; 
-    if (navigator.geolocation) {
-        await new Promise(resolve => {
-            navigator.geolocation.getCurrentPosition(pos => {
-                lat = pos.coords.latitude;
-                lon = pos.coords.longitude;
-                resolve();
-            }, () => resolve());
-        });
-    }
-
     return {
-        co2: Math.floor(Math.random() * 200) + 400,
-        aqi: Math.floor(Math.random() * 50) + 30,
+        co2: Math.floor(Math.random() * 200) + 400,    // ppm
+        aqi: Math.floor(Math.random() * 50) + 30,      // AQI
         sensors: [
-            { name: "You are here", lat, lon, co2: 420, aqi: 45 },
-            { name: "Sensor 2", lat: lat + 0.01, lon: lon + 0.01, co2: 530, aqi: 78 },
-            { name: "Sensor 3", lat: lat - 0.01, lon: lon - 0.01, co2: 480, aqi: 62 }
+            { name: "Sensor 1", lat: 51.505, lon: -0.09, co2: 420, aqi: 45 },
+            { name: "Sensor 2", lat: 51.51, lon: -0.1, co2: 530, aqi: 78 },
+            { name: "Sensor 3", lat: 51.49, lon: -0.08, co2: 480, aqi: 62 }
         ]
     };
 }
