@@ -18,5 +18,5 @@ The **rnddata** is the simulation data, when the product is finish, we won't use
   - Allow the location request
   -Try it
 
-2. Photo
+**2. Photo**
 <img width="1920" height="1200" alt="Screenshot 2025-08-07 at 00 40 15" src="https://github.com/user-attachments/assets/13b7dbad-171b-4996-9ed6-51f649118814" />
