@@ -43,16 +43,84 @@ const aqiGauge = createGauge(document.getElementById("aqiGauge"), "AQI", 300);
 
 // ====== CHARTS ======
 const chartOptions = { responsive: true, maintainAspectRatio: false };
+
 const co2Chart = new Chart(document.getElementById("co2Chart"), {
     type: 'line',
     data: { labels: [], datasets: [{ label: "CO2", data: [], borderColor: "#3498db", fill: true }] },
     options: chartOptions
 });
+
 const aqiChart = new Chart(document.getElementById("aqiChart"), {
     type: 'line',
     data: { labels: [], datasets: [{ label: "AQI", data: [], borderColor: "#9b59b6", fill: true }] },
     options: chartOptions
 });
+
+const ioChart = new Chart(document.getElementById("ioChart"), {
+    type: 'line',
+    data: { labels: [], datasets: [{ label: "IO State", data: [], borderColor: "#e67e22", fill: false, stepped: true }] },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { min: 0, max: 1, ticks: { stepSize: 1 } } }
+    }
+});
+
+// ====== IO STATUS ======
+let ioState = 0; // 0 = OFF, 1 = ON
+let ioTimeout = null; // 60s auto-off
+
+function updateIOStatus(io) {
+    const ioBar = document.getElementById("io-bar");
+    const ioText = document.getElementById("io-text");
+
+    if (io === 1) {
+        ioBar.style.width = "100%";
+        ioBar.style.backgroundColor = "green";
+        ioText.textContent = "ON";
+    } else {
+        ioBar.style.width = "0%";
+        ioBar.style.backgroundColor = "red";
+        ioText.textContent = "OFF";
+    }
+}
+
+// IO button
+document.getElementById("io-toggle").addEventListener("click", () => {
+    if (ioState === 0) {
+        // ON
+        ioState = 1;
+        updateIOStatus(ioState);
+        pushIOHistory(ioState);
+
+        // 60s TimeOUT
+        if (ioTimeout) clearTimeout(ioTimeout);
+        ioTimeout = setTimeout(() => {
+            ioState = 0;
+            updateIOStatus(ioState);
+            pushIOHistory(ioState);
+        }, 60000);
+
+    } else {
+        // ON to OFF
+        ioState = 0;
+        updateIOStatus(ioState);
+        pushIOHistory(ioState);
+        if (ioTimeout) clearTimeout(ioTimeout);
+    }
+});
+
+// ====== IO HISTORY ======
+function pushIOHistory(ioValue) {
+    const now = new Date().toLocaleTimeString();
+    ioChart.data.labels.push(now);
+    ioChart.data.datasets[0].data.push(ioValue);
+    if (ioChart.data.labels.length > 20) {
+        ioChart.data.labels.shift();
+        ioChart.data.datasets[0].data.shift();
+    }
+    ioChart.update();
+}
 
 // ====== UPDATE DASHBOARD ======
 async function updateDashboard() {
@@ -74,13 +142,14 @@ async function updateDashboard() {
     document.getElementById("co2-status").textContent = data.co2 < 600 ? "Good" : data.co2 < 1000 ? "Moderate" : "Poor";
     document.getElementById("aqi-status").textContent = data.aqi < 50 ? "Good" : data.aqi < 100 ? "Moderate" : "Poor";
 
-    // Charts
+    // CO₂ chart
     const now = new Date().toLocaleTimeString();
     co2Chart.data.labels.push(now);
     co2Chart.data.datasets[0].data.push(data.co2);
     if (co2Chart.data.labels.length > 20) { co2Chart.data.labels.shift(); co2Chart.data.datasets[0].data.shift(); }
     co2Chart.update();
 
+    // AQI chart
     aqiChart.data.labels.push(now);
     aqiChart.data.datasets[0].data.push(data.aqi);
     if (aqiChart.data.labels.length > 20) { aqiChart.data.labels.shift(); aqiChart.data.datasets[0].data.shift(); }

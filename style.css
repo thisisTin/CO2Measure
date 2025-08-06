@@ -1,13 +1,17 @@
 :root {
-    --primary: #a7a417;
-    --success: #3ff789;
-    --warning: #e1a025;
+    --primary: linear-gradient(135deg, #43cea2, #185a9d); /* xanh lá tới xanh biển */
+    --success: #2ecc71;
+    --warning: #f39c12;
     --danger: #e74c3c;
+    --bg-light: #e6f4ea;
+    --text-dark: #2c3e50;
 }
 
 body {
-    background: #f5f7fa;
+    background: var(--bg-light);
     font-family: 'Roboto', sans-serif;
+    margin: 0;
+    color: var(--text-dark);
 }
 
 .dashboard {
@@ -21,15 +25,23 @@ body {
 
 .card {
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
 }
 
 .card-header {
-    padding: 10px;
+    padding: 12px;
     background: var(--primary);
     color: white;
     font-weight: bold;
+    text-align: center;
+    letter-spacing: 0.5px;
 }
 
 .card-body {
@@ -38,21 +50,24 @@ body {
 
 .value-display {
     text-align: center;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: bold;
+    margin-top: 10px;
 }
 
 .value-label {
     text-align: center;
     font-size: 0.9rem;
-    color: gray;
+    color: #555;
 }
 
 .status {
     text-align: center;
-    padding: 5px;
-    border-radius: 4px;
+    padding: 5px 10px;
+    border-radius: 20px;
     color: white;
+    display: inline-block;
+    margin: 10px auto 0;
 }
 
 .good { background: var(--success); }
@@ -60,4 +75,46 @@ body {
 .poor { background: var(--danger); }
 
 .map-container { grid-column: span 2; }
-#map { height: 300px; width: 100%; }
+#map {
+    height: 300px;
+    width: 100%;
+    border-radius: 10px;
+    border: 2px solid #bde0c8;
+}
+.io-bar-container {
+    width: 100%;
+    height: 25px;
+    background-color: #ccc;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.io-bar {
+    height: 100%;
+    width: 0%;
+    background-color: red;
+    transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+.io-text {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+.io-btn {
+    display: block;
+    margin: 10px auto 0;
+    padding: 8px 16px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--primary);
+    color: rgb(118, 116, 116);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.io-btn:hover {
+    background-color: #2fa94f;
+}

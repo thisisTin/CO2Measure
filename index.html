@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Environmental Dashboard</title>
+    <title>Main Dashboard</title>
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -14,6 +14,7 @@
 </head>
 <body>
     <div class="dashboard">
+
         <!-- CO2 Card -->
         <div class="card">
             <div class="card-header">CO2 Levels</div>
@@ -36,6 +37,26 @@
             </div>
         </div>
 
+        <!-- IO Status Card -->
+        <div class="card">
+            <div class="card-header">IO Status</div>
+            <div class="card-body">
+                <div id="io-container" style="background:#ddd; width:100%; height:20px; border-radius:10px; overflow:hidden;">
+                    <div id="io-bar" style="height:100%; width:0%; background:red; transition:width 0.5s;"></div>
+                </div>
+                <div id="io-text" style="text-align:center; margin-top:5px;">OFF</div>
+                <button id="io-toggle" style="margin-top:10px; width:100%;">Toggle IO</button>
+            </div>
+        </div>
+
+        <!-- IO History Chart -->
+        <div class="card">
+            <div class="card-header">IO History</div>
+            <div class="card-body">
+                <canvas id="ioChart"></canvas>
+            </div>
+        </div>
+
         <!-- Map -->
         <div class="card map-container">
             <div class="card-header">Sensor Locations</div>
@@ -44,13 +65,15 @@
             </div>
         </div>
 
-        <!-- Charts -->
+        <!-- CO2 History Chart -->
         <div class="card">
             <div class="card-header">CO2 History</div>
             <div class="card-body">
                 <canvas id="co2Chart"></canvas>
             </div>
         </div>
+
+        <!-- AQI History Chart -->
         <div class="card">
             <div class="card-header">AQI History</div>
             <div class="card-body">
