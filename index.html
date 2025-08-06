@@ -18,7 +18,7 @@
         <div class="card">
             <div class="card-header">CO2 Levels</div>
             <div class="card-body">
-                <canvas id="co2Gauge"></canvas>
+                <canvas id="co2Gauge" height="150"></canvas>
                 <div class="value-display" id="co2-value">-- ppm</div>
                 <div class="value-label">Current Carbon Dioxide Concentration</div>
                 <div class="status" id="co2-status">--</div>
@@ -29,7 +29,7 @@
         <div class="card">
             <div class="card-header">Air Quality Index</div>
             <div class="card-body">
-                <canvas id="aqiGauge"></canvas>
+                <canvas id="aqiGauge" height="150"></canvas>
                 <div class="value-display" id="aqi-value">--</div>
                 <div class="value-label">Current Air Quality</div>
                 <div class="status" id="aqi-status">--</div>
@@ -62,9 +62,6 @@
     <!-- JS Libraries -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gaugeJS/dist/gauge.min.js"></script>
-
-
     <!-- Custom JS -->
     <script src="rnddata.js"></script>
     <script src="script.js"></script>
