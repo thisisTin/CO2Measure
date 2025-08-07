@@ -21,7 +21,7 @@ The **rnddata** is the simulation data, when the product is finish, we won't use
       + Then click Clone Repository -> The system may ask for login -> Login
   - After install live server, click live server in the bottom corner in the right side
   - If you want to deplay to the localhost server:
-    Open Terminal -> Type: `http-server` -> Open **`127.0.0.1:8080`** or `**localhost:8080`**
+    Open Terminal -> Type: `http-server` -> Open **`127.0.0.1:8080`** or **`**localhost:8080`**
   - Allow the location request
   -Try it
 
