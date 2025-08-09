@@ -155,6 +155,44 @@ async function updateDashboard() {
     if (aqiChart.data.labels.length > 20) { aqiChart.data.labels.shift(); aqiChart.data.datasets[0].data.shift(); }
     aqiChart.update();
 }
+// ====== DOWNLOAD CSV ======
+document.getElementById("downloadCsvBtn").addEventListener("click", () => {
+    // Thu thập dữ liệu từ các biểu đồ
+    const labels = co2Chart.data.labels;
+    const co2Data = co2Chart.data.datasets[0].data;
+    const aqiData = aqiChart.data.datasets[0].data;
+    const ioData = ioChart.data.datasets[0].data;
 
+    if (labels.length === 0) {
+        alert("No Data!");
+        return;
+    }
+
+    // Creat CCSSV
+    let csvContent = "Time,CO2 (ppm),AQI, IO\n";
+
+    // Add Data in CSV
+    labels.forEach((label, index) => {
+        const co2Value = co2Data[index] !== undefined ? co2Data[index] : '';
+        const aqiValue = aqiData[index] !== undefined ? aqiData[index] : '';
+        const ioValue = ioData[index] !== undefined ? ioData[index] : '';
+        csvContent += `${label},${co2Value},${aqiValue},${ioValue}\n`;
+    });
+
+    // Dowload 
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "sensor_data.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        alert("No Support.");
+    }
+});
 updateDashboard();
-setInterval(updateDashboard, 5000);
+setInterval(updateDashboard, 2000);
