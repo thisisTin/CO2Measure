@@ -1,17 +1,17 @@
-// rnddata.js — Simulate data from ESP32 or API server
+
+// Simulated sensor data for demo
 async function fetchSensorData() {
-    // Simulate random data:
-    //const ioState = Math.random() < 0.5 ? 0 : 1; // 0 = OFF, 1 = ON
-
-    return {
-        co2: Math.floor(Math.random() * 200) + 400,    // ppm
-        aqi: Math.floor(Math.random() * 50) + 30,      // AQI
-        //io: ioState, // 0 or 1
-
-        sensors: [
-            { name: "Sensor 1", lat: 51.505, lon: -0.09, co2: 420, aqi: 45, io: ioState },
-            { name: "Sensor 2", lat: 51.51, lon: -0.1, co2: 530, aqi: 78, io: ioState },
-            { name: "Sensor 3", lat: 51.49, lon: -0.08, co2: 480, aqi: 62, io: ioState }
-        ]
-    };
+  // randomish values; adjust ranges as needed
+  const co2 = Math.floor(Math.random()*300) + 380;    // 380-680 ppm
+  const aqi = Math.floor(Math.random()*120) + 20;     // 20-140
+  const temp = Math.floor(Math.random()*12) + 20;     // 20-32 °C
+  const hum = Math.floor(Math.random()*50) + 30;      // 30-80 %
+  return {
+    co2, aqi, temp, hum,
+    sensors: [
+      {name:'Sensor 1', lat:21.0285, lon:105.854, co2:co2, aqi:aqi},
+      {name:'Sensor 2', lat:21.0320, lon:105.852, co2:co2+30, aqi:aqi+10},
+      {name:'Sensor 3', lat:21.0350, lon:105.850, co2:co2-20, aqi:aqi-5}
+    ]
+  };
 }

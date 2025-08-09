@@ -1,198 +1,133 @@
-console.log("🚀 script.js loaded");
+// Dashboard script — handles map, gauges, charts, updates, and CSV export
+console.log('dashboard script loaded');
 
-// ====== MAP ======
-let map = L.map('map').setView([0, 0], 2);
+// CSV data array — only header initially
+let csvData = [["timestamp","co2","aqi","temp","hum","io"]];
+
+// Initialize map
+const map = L.map('map').setView([21.0285, 105.854], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
+  attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
+let markers = [];
 
-if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-        map.setView([lat, lon], 15);
-        L.marker([lat, lon]).addTo(map).bindPopup("📍 You are here").openPopup();
-    }, err => {
-        console.error("❌ Can't get location:", err);
-    });
+// Create gauge
+function createGauge(ctx, color) {
+  return new Chart(ctx, {
+    type: 'doughnut',
+    data: { datasets: [{ data: [0,100], backgroundColor: [color,'rgba(255,255,255,0.05)'], borderWidth: 0 }] },
+    options: { rotation: -90, circumference: 180, cutout: '75%', plugins:{legend:{display:false}, tooltip:{enabled:false}} }
+  });
 }
 
-// ====== GAUGES ======
-function createGauge(ctx, label, max) {
-    return new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: [label, ""],
-            datasets: [{
-                data: [0, max],
-                backgroundColor: ['#2ecc71', '#ecf0f1'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            rotation: -90,
-            circumference: 180,
-            cutout: '80%',
-            plugins: { legend: { display: false } }
-        }
-    });
-}
+// Gauges
+const co2Gauge = createGauge(document.getElementById('co2Gauge'), '#2ecc71');
+const aqiGauge = createGauge(document.getElementById('aqiGauge'), '#f1c40f');
+const tempGauge = createGauge(document.getElementById('tempGauge'), '#ff8c42');
+const humGauge = createGauge(document.getElementById('humGauge'), '#3498db');
 
-const co2Gauge = createGauge(document.getElementById("co2Gauge"), "CO2", 2000);
-const aqiGauge = createGauge(document.getElementById("aqiGauge"), "AQI", 300);
+// Charts
+const chartOpts = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: '#fff' } } },
+  scales: { x: { ticks: { color: '#fff' } }, y: { ticks: { color: '#fff' } } }
+};
 
-// ====== CHARTS ======
-const chartOptions = { responsive: true, maintainAspectRatio: false };
-
-const co2Chart = new Chart(document.getElementById("co2Chart"), {
+function makeLineChart(id, label, color, fill=true) {
+  return new Chart(document.getElementById(id), {
     type: 'line',
-    data: { labels: [], datasets: [{ label: "CO2", data: [], borderColor: "#3498db", fill: true }] },
-    options: chartOptions
-});
-
-const aqiChart = new Chart(document.getElementById("aqiChart"), {
-    type: 'line',
-    data: { labels: [], datasets: [{ label: "AQI", data: [], borderColor: "#9b59b6", fill: true }] },
-    options: chartOptions
-});
-
-const ioChart = new Chart(document.getElementById("ioChart"), {
-    type: 'line',
-    data: { labels: [], datasets: [{ label: "IO State", data: [], borderColor: "#e67e22", fill: false, stepped: true }] },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: { y: { min: 0, max: 1, ticks: { stepSize: 1 } } }
-    }
-});
-
-// ====== IO STATUS ======
-let ioState = 0; // 0 = OFF, 1 = ON
-let ioTimeout = null; // 60s auto-off
-
-function updateIOStatus(io) {
-    const ioBar = document.getElementById("io-bar");
-    const ioText = document.getElementById("io-text");
-
-    if (io === 1) {
-        ioBar.style.width = "100%";
-        ioBar.style.backgroundColor = "green";
-        ioText.textContent = "ON";
-    } else {
-        ioBar.style.width = "0%";
-        ioBar.style.backgroundColor = "red";
-        ioText.textContent = "OFF";
-    }
+    data: { labels: [], datasets: [{ label: label, data: [], borderColor: color, backgroundColor: fill ? color+'22' : color, fill: fill, tension: 0.35 }] },
+    options: chartOpts
+  });
 }
 
-// IO button
-document.getElementById("io-toggle").addEventListener("click", () => {
-    if (ioState === 0) {
-        // ON
-        ioState = 1;
-        updateIOStatus(ioState);
-        pushIOHistory(ioState);
+const co2Chart = makeLineChart('co2Chart', 'CO₂ (ppm)', '#2ecc71');
+const aqiChart = makeLineChart('aqiChart', 'AQI', '#f1c40f');
+const ioChart  = makeLineChart('ioChart',  'IO', '#ff7f50', false);
+const tempChart= makeLineChart('tempChart','Temp (°C)', '#ff8c42');
+const humChart = makeLineChart('humChart', 'Humidity (%)', '#3498db');
 
-        // 60s TimeOUT
-        if (ioTimeout) clearTimeout(ioTimeout);
-        ioTimeout = setTimeout(() => {
-            ioState = 0;
-            updateIOStatus(ioState);
-            pushIOHistory(ioState);
-        }, 60000);
-
-    } else {
-        // ON to OFF
-        ioState = 0;
-        updateIOStatus(ioState);
-        pushIOHistory(ioState);
-        if (ioTimeout) clearTimeout(ioTimeout);
-    }
+// IO
+let ioState = 0;
+document.getElementById('io-toggle').addEventListener('click', ()=>{
+  ioState = ioState ? 0 : 1;
+  document.getElementById('io-bar').style.width = ioState ? '100%' : '0%';
+  document.getElementById('io-bar').classList.toggle('on', ioState);
+  document.getElementById('io-text').textContent = ioState ? 'ON' : 'OFF';
+  pushIO(ioState);
 });
 
-// ====== IO HISTORY ======
-function pushIOHistory(ioValue) {
-    const now = new Date().toLocaleTimeString();
-    ioChart.data.labels.push(now);
-    ioChart.data.datasets[0].data.push(ioValue);
-    if (ioChart.data.labels.length > 20) {
-        ioChart.data.labels.shift();
-        ioChart.data.datasets[0].data.shift();
-    }
-    ioChart.update();
+function pushIO(v) {
+  const t = new Date().toLocaleTimeString();
+  ioChart.data.labels.push(t);
+  ioChart.data.datasets[0].data.push(v);
+  if(ioChart.data.labels.length>30) { ioChart.data.labels.shift(); ioChart.data.datasets[0].data.shift(); }
+  ioChart.update();
 }
 
-// ====== UPDATE DASHBOARD ======
+// Download CSV
+document.querySelector('.download-btn').addEventListener('click', ()=>{
+  let csvContent = csvData.map(e => e.join(",")).join("\r\n"); // Xuống dòng chuẩn Windows
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "data.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+});
+
+
+// Update function
 async function updateDashboard() {
-    const data = await fetchSensorData();
+  const d = await fetchSensorData();
 
-    // Gauges
-    co2Gauge.data.datasets[0].data[0] = data.co2;
-    co2Gauge.data.datasets[0].data[1] = 2000 - data.co2;
-    co2Gauge.data.datasets[0].backgroundColor[0] = data.co2 < 600 ? '#2ecc71' : data.co2 < 1000 ? '#f39c12' : '#e74c3c';
-    co2Gauge.update();
+  const tNow = new Date().toLocaleString(); // readable local time
+  csvData.push([tNow, d.co2, d.aqi, d.temp, d.hum, ioState]);
+  if (csvData.length > 300) csvData.splice(1,1); // limit size
 
-    aqiGauge.data.datasets[0].data[0] = data.aqi;
-    aqiGauge.data.datasets[0].data[1] = 300 - data.aqi;
-    aqiGauge.data.datasets[0].backgroundColor[0] = data.aqi < 50 ? '#2ecc71' : data.aqi < 100 ? '#f39c12' : '#e74c3c';
-    aqiGauge.update();
+  // Gauges
+  co2Gauge.data.datasets[0].data = [d.co2, 2000-d.co2];
+  co2Gauge.update();
+  document.getElementById('co2-value').textContent = d.co2;
 
-    document.getElementById("co2-value").textContent = `${data.co2} ppm`;
-    document.getElementById("aqi-value").textContent = `${data.aqi}`;
-    document.getElementById("co2-status").textContent = data.co2 < 600 ? "Good" : data.co2 < 1000 ? "Moderate" : "Poor";
-    document.getElementById("aqi-status").textContent = data.aqi < 50 ? "Good" : data.aqi < 100 ? "Moderate" : "Poor";
+  aqiGauge.data.datasets[0].data = [d.aqi, 500-d.aqi];
+  aqiGauge.update();
+  document.getElementById('aqi-value').textContent = d.aqi;
 
-    // CO₂ chart
-    const now = new Date().toLocaleTimeString();
-    co2Chart.data.labels.push(now);
-    co2Chart.data.datasets[0].data.push(data.co2);
-    if (co2Chart.data.labels.length > 20) { co2Chart.data.labels.shift(); co2Chart.data.datasets[0].data.shift(); }
-    co2Chart.update();
+  tempGauge.data.datasets[0].data = [d.temp, 60-d.temp];
+  tempGauge.update();
+  document.getElementById('temp-value').textContent = d.temp;
 
-    // AQI chart
-    aqiChart.data.labels.push(now);
-    aqiChart.data.datasets[0].data.push(data.aqi);
-    if (aqiChart.data.labels.length > 20) { aqiChart.data.labels.shift(); aqiChart.data.datasets[0].data.shift(); }
-    aqiChart.update();
+  humGauge.data.datasets[0].data = [d.hum, 100-d.hum];
+  humGauge.update();
+  document.getElementById('hum-value').textContent = d.hum;
+
+  // Charts
+  const t = new Date().toLocaleTimeString();
+  function push(chart, value) {
+    chart.data.labels.push(t);
+    chart.data.datasets[0].data.push(value);
+    if(chart.data.labels.length>30) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
+    chart.update();
+  }
+  push(co2Chart, d.co2);
+  push(aqiChart, d.aqi);
+  push(tempChart, d.temp);
+  push(humChart, d.hum);
+  push(ioChart, ioState);
+
+  // Map
+  markers.forEach(m => map.removeLayer(m)); markers = [];
+  d.sensors.forEach(s => {
+    let m = L.marker([s.lat, s.lon]).addTo(map).bindPopup(
+      `${s.name}<br>CO₂: ${s.co2} ppm<br>AQI: ${s.aqi}`
+    );
+    markers.push(m);
+  });
 }
-// ====== DOWNLOAD CSV ======
-document.getElementById("downloadCsvBtn").addEventListener("click", () => {
-    // Thu thập dữ liệu từ các biểu đồ
-    const labels = co2Chart.data.labels;
-    const co2Data = co2Chart.data.datasets[0].data;
-    const aqiData = aqiChart.data.datasets[0].data;
-    const ioData = ioChart.data.datasets[0].data;
 
-    if (labels.length === 0) {
-        alert("No Data!");
-        return;
-    }
-
-    // Creat CCSSV
-    let csvContent = "Time,CO2 (ppm),AQI, IO\n";
-
-    // Add Data in CSV
-    labels.forEach((label, index) => {
-        const co2Value = co2Data[index] !== undefined ? co2Data[index] : '';
-        const aqiValue = aqiData[index] !== undefined ? aqiData[index] : '';
-        const ioValue = ioData[index] !== undefined ? ioData[index] : '';
-        csvContent += `${label},${co2Value},${aqiValue},${ioValue}\n`;
-    });
-
-    // Dowload 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", "sensor_data.csv");
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } else {
-        alert("No Support.");
-    }
-});
 updateDashboard();
-setInterval(updateDashboard, 2000);
+setInterval(updateDashboard, 5000);

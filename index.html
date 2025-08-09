@@ -1,100 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Dashboard</title>
-
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dark Dashboard — CO₂ / AQI / Temp / Humidity</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="dashboard">
-
-        <!-- CO2 Card -->
-        <div class="card">
-            <div class="card-header">CO2 Levels</div>
-            <div class="card-body">
-                <canvas id="co2Gauge" height="150"></canvas>
-                <div class="value-display" id="co2-value">-- ppm</div>
-                <div class="value-label">Current Carbon Dioxide Concentration</div>
-                <div class="status" id="co2-status">--</div>
-            </div>
-        </div>
-
-        <!-- AQI Card -->
-        <div class="card">
-            <div class="card-header">Air Quality Index</div>
-            <div class="card-body">
-                <canvas id="aqiGauge" height="150"></canvas>
-                <div class="value-display" id="aqi-value">--</div>
-                <div class="value-label">Current Air Quality</div>
-                <div class="status" id="aqi-status">--</div>
-            </div>
-        </div>
-
-        <!-- IO Status Card -->
-        <div class="card">
-            <div class="card-header">IO Status</div>
-            <div class="card-body">
-                <div id="io-container" style="background:#ddd; width:100%; height:20px; border-radius:10px; overflow:hidden;">
-                    <div id="io-bar" style="height:100%; width:0%; background:red; transition:width 0.5s;"></div>
-                </div>
-                <div id="io-text" style="text-align:center; margin-top:5px;">OFF</div>
-                <button id="io-toggle" style="margin-top:10px; width:100%;">Toggle IO</button>
-            </div>
-        </div>
-
-        <!-- IO History Chart -->
-        <div class="card">
-            <div class="card-header">IO History</div>
-            <div class="card-body">
-                <canvas id="ioChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Map -->
-        <div class="card map-container">
-            <div class="card-header">Sensor Locations</div>
-            <div class="card-body">
-                <div id="map"></div>
-            </div>
-        </div>
-
-        <!-- CO2 History Chart -->
-        <div class="card">
-            <div class="card-header">CO2 History</div>
-            <div class="card-body">
-                <canvas id="co2Chart"></canvas>
-            </div>
-        </div>
-
-        <!-- AQI History Chart -->
-        <div class="card">
-            <div class="card-header">AQI History</div>
-            <div class="card-body">
-                <canvas id="aqiChart"></canvas>
-            </div>
-        </div>
+  <header class="dashboard-header">
+    <div class="header-left">
+      <h1>📊 Dashboard</h1>
+      <p class="subtitle">Real-time CO₂ · AQI · Temperature · Humidity</p>
     </div>
-        <!--Dowload CSV-->
-        <div class="card">
-            <div class="card-body">
-               
-                <button id="downloadCsvBtn" class="download-btn"> Dowload CSV<button>
-            </div>
-        </div>
+    <div class="header-right">
+      <a class="download-btn" href="data.csv" download>⬇ Download CSV</a>
     </div>
+  </header>
 
-    <!-- JS Libraries -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Custom JS -->
-    <script src="rnddata.js"></script>
-    <script src="script.js"></script>
+  <main class="dashboard">
+
+    <!-- Map  -->
+    <section class="card map-container">
+      <div class="card-header">Sensor Locations</div>
+      <div class="card-body">
+        <div id="map"></div>
+      </div>
+    </section>
+
+    <!--CO2 Gauge | CO2 Chart | IO Status -->
+    <section class="card">
+      <div class="card-header">CO₂ Levels</div>
+      <div class="card-body gauge-body">
+        <div class="gauge-wrapper"><canvas id="co2Gauge"></canvas>
+          <div class="gauge-overlay"><div class="gauge-value" id="co2-value">--</div><div class="gauge-unit">ppm</div></div>
+        </div>
+        <div class="gauge-footer"><div id="co2-status" class="gauge-status">--</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">CO₂ History</div>
+      <div class="card-body">
+        <canvas id="co2Chart"></canvas>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">IO Status</div>
+      <div class="card-body io-body">
+        <div class="io-bar-container"><div id="io-bar" class="io-bar"></div></div>
+        <div id="io-text" class="io-text">OFF</div>
+        <button id="io-toggle" class="io-btn">Toggle IO</button>
+      </div>
+    </section>
+
+    <!-- Row: AQI Gauge | AQI Chart | IO Chart -->
+    <section class="card">
+      <div class="card-header">Air Quality Index</div>
+      <div class="card-body gauge-body">
+        <div class="gauge-wrapper"><canvas id="aqiGauge"></canvas>
+          <div class="gauge-overlay"><div class="gauge-value" id="aqi-value">--</div><div class="gauge-unit">AQI</div></div>
+        </div>
+        <div class="gauge-footer"><div id="aqi-status" class="gauge-status">--</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">AQI History</div>
+      <div class="card-body">
+        <canvas id="aqiChart"></canvas>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">IO History</div>
+      <div class="card-body">
+        <canvas id="ioChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Row 4: Temperature (full row: gauge + chart) -->
+    <section class="card full-row">
+      <div class="card-header">Temperature</div>
+      <div class="card-body temp-row">
+        <div class="gauge-wrapper temp-gauge"><canvas id="tempGauge"></canvas>
+          <div class="gauge-overlay"><div class="gauge-value" id="temp-value">--</div><div class="gauge-unit">°C</div></div></div>
+        <div class="chart-large"><canvas id="tempChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- Row 5: Humidity (full row: gauge + chart) -->
+    <section class="card full-row">
+      <div class="card-header">Humidity</div>
+      <div class="card-body temp-row">
+        <div class="gauge-wrapper temp-gauge"><canvas id="humGauge"></canvas>
+          <div class="gauge-overlay"><div class="gauge-value" id="hum-value">--</div><div class="gauge-unit">%</div></div></div>
+        <div class="chart-large"><canvas id="humChart"></canvas></div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="rnddata.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
